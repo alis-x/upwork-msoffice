@@ -4,7 +4,13 @@
     "@grpc/grpc-js": "^1.6.7",
     "google-protobuf": "^3.6.1",
     "grpc-web": "1.2.1",
-    "xhr2": "^0.2.1"
+    "xhr2": "^0.2.1",
+    "express": "^4.18.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "build": "cd public && webpack client.js"
   },
   "devDependencies": {
     "browserify": "^16.2.2",

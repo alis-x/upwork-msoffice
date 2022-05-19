@@ -1,3 +1,6 @@
 The above was created following the tutorial at: https://grpc.io/docs/platforms/web/basics/
 
-In the `testServer` directory, you will find a simple  express server which is serving a static html page, `index.html` with the webpack built js library embedded in it.
+To build the js library as specified in `public/client.js`, run `npm run build`.
+
+A simple express server will then serve a static web page, `index.html`, with the library embeded in it. To run the server run `npm start`
+and navigate to `localhost:3000`

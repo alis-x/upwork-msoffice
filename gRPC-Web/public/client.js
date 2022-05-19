@@ -1,6 +1,6 @@
 // const grpc = require('@grpc/grpc-js')
-const {SayHelloRequest, SayHelloResponse} = require('./greeter_pb.js');
-const {GreeterServiceClient} = require('./greeter_grpc_web_pb.js');
+const {SayHelloRequest, SayHelloResponse} = require('../greeter_pb.js');
+const {GreeterServiceClient} = require('../greeter_grpc_web_pb.js');
 
 
 // const ssl_creds = grpc.credentials.createSsl();
@@ -12,6 +12,6 @@ var request = new SayHelloRequest();
 request.setName('Jason');
 
 greeterService.sayHello(request, {}, function(err, response) {
-    console.log(response)
-    console.log(err)
+    console.log('gRPC-web response to follow...')
+    console.log(response.getMessage())
 });
