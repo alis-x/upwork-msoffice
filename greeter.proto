@@ -1,22 +1,22 @@
 syntax = "proto3";
 
-package alis.ex.services.msoffice.v1;
+package party.lb.services.greeter.v1;
 
 option go_package = "go.protobuf.alis.alis.exchange/alis/ex/services/msoffice/v1";
 
 // A sample service to use for creating ms office
-service Greeter {
+service GreeterService {
     // This method generates a hello message to a specified individual
     rpc SayHello (SayHelloRequest) returns (SayHelloResponse);
 }
 
-// Request message for [alis.ex.services.msoffice.v1.Service.SayHello]
+// Request message for [party.lb.services.greeter.v1.Service.SayHello]
 message SayHelloRequest {
     // Name of the person to which to say hello
     string name = 1;
 }
 
-// Response message for [alis.ex.services.msoffice.v1.Service.SayHello]
+// Response message for [party.lb.services.greeter.v1.Service.SayHello]
 message SayHelloResponse {
     // The hello message
     string message = 1;
