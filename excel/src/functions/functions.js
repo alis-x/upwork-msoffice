@@ -1,21 +1,20 @@
-﻿/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* global console setInterval, clearInterval */
 
 const {SayHelloRequest, SayHelloResponse} = require('../client/greeter_pb.js');
 const {GreeterServiceClient} = require('../client/greeter_grpc_web_pb.js');
 
+let target = 'https://services-gateway-v1-rruykyywdq-ew.a.run.app';
+
+var greeterService = new GreeterServiceClient(target);
+
 /**
- * Calls the GreeterService.sayHello gRPC method.
+ * This method generates a hello message to a specified individual
  * @customfunction sayHello sayHello
- * @param {string} name String to send.
- * @returns Returned String.
+ * @param name Name of the person to which to say hello
+ * @returns The hello message
  */
-function sayHello(name) {
-  let target = 'https://services-gateway-v1-rruykyywdq-ew.a.run.app';
-  var greeterService = new GreeterServiceClient(target);
-
-  console.log(name);
-
+function GreeterService_SayHello(name) {
   return new Promise(function (resolve, reject) {
 
     var request = new SayHelloRequest();
@@ -23,7 +22,6 @@ function sayHello(name) {
 
     greeterService.sayHello(request, {},
       function(err, response) {
-        console.log(err);
         resolve(response.getMessage());
     });
   });

@@ -1,0 +1,78 @@
+#! /usr/bin/env node
+
+const protocPlugin = require('protoc-plugin')
+const findCommentByPath = protocPlugin.findCommentByPath
+
+protocPlugin(protos => {
+  return [{
+    name: `functions.js`,
+    content: protos.map(generateFunctions).join(`\r\n`)
+  }]
+})
+.catch((err) => {
+  console.error(err)
+})
+
+function generateFunctions(proto) {
+  const name = proto.name.replace(`.proto`, ``)
+  const services = proto.serviceList.map(service => `${service.name}Client`).join(`, `)
+  const messages = proto.messageTypeList.map(message => message.name).join(`, `)
+
+  return [
+    `/* eslint-disable @typescript-eslint/no-unused-vars */`,
+    `/* global console setInterval, clearInterval */`,
+    ``,
+    `const {${messages}} = require('../client/${name}_pb.js');`,
+    `const {${services}} = require('../client/${name}_grpc_web_pb.js');`,
+    ``,
+    `let target = 'https://services-gateway-v1-rruykyywdq-ew.a.run.app';`,
+    proto.serviceList.map((service, s) => generateService(proto, service, s, name)).join(`\r\n`),
+  ].join(`\r\n`)
+}
+
+function generateService(proto, service, s, name) {
+  return [
+    ``,
+    `var ${name}Service = new ${service.name}Client(target);`,
+     service.methodList.map((method, m) => generateFunction(proto, service, s, method, m, name)).join(`\r\n`)
+  ].join(`\r\n`)
+}
+
+function generateFunction(proto, service, s, method, m, name) {
+  const request = proto.messageTypeList.find(type => method.inputType.endsWith(type.name))
+  const response = proto.messageTypeList.find(type => method.outputType.endsWith(type.name))
+  const req = proto.messageTypeList.indexOf(request)
+  const rsp = proto.messageTypeList.indexOf(response)
+  const arguments = request.fieldList.map(field => field.jsonName).join(`, `)
+  const jsMethodName = toLowerCaseFirst(method.name);
+
+  return [
+    ``,
+    `/**`,
+    ` * ${findCommentByPath([6, s, 2, m], proto.sourceCodeInfo.locationList)}`,
+    ` * @customfunction ${jsMethodName} ${jsMethodName}`,
+    request.fieldList.map((field, f) => ` * @param ${field.jsonName} ${findCommentByPath([4, req, 2, f], proto.sourceCodeInfo.locationList)}`).join(`\r\n`),
+    ` * @returns ${findCommentByPath([4, rsp, 2, 0], proto.sourceCodeInfo.locationList)}`,
+    ` */`,
+    `function ${service.name}_${method.name}(${arguments}) {`,
+    `  return new Promise(function (resolve, reject) {`,
+    ``,
+    `    var request = new ${request.name}();`,
+    request.fieldList.map(field => `    request.set${toUpperCaseFirst(field.jsonName)}(${field.jsonName});`).join(`\r\n`),
+    ``,
+    `    ${name}Service.${jsMethodName}(request, {},`,
+    `      function(err, response) {`,
+    `        resolve(response.get${toUpperCaseFirst(response.fieldList[0].jsonName)}());`,
+    `    });`,
+    `  });`,
+    `}`
+  ].join(`\r\n`)
+}
+
+function toLowerCaseFirst(text) {
+  return text.charAt(0).toLowerCase() + text.slice(1)
+}
+
+function toUpperCaseFirst(text) {
+  return text.charAt(0).toUpperCase() + text.slice(1)
+}

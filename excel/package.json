@@ -25,7 +25,7 @@
     "test:unit": "mocha -r ts-node/register test/unit/*.test.ts",
     "validate": "office-addin-manifest validate manifest.xml",
     "watch": "webpack --mode development --watch",
-    "grpc": "grpc_tools_node_protoc --js_out=import_style=commonjs,binary:src/client --grpc-web_out=import_style=commonjs,mode=grpcwebtext:src/client -I ../ ../greeter.proto"
+    "grpc": "grpc_tools_node_protoc --js_out=import_style=commonjs,binary:src/client --grpc-web_out=import_style=commonjs,mode=grpcwebtext:src/client --plugin=src/protoc-gen-excel --excel_out=src/functions -I ../ ../greeter.proto"
   },
   "dependencies": {
     "core-js": "^3.9.1",
@@ -60,6 +60,7 @@
     "os-browserify": "^0.3.0",
     "process": "^0.11.10",
     "protoc-gen-grpc-web": "^1.4.0",
+    "protoc-plugin": "^0.0.6",
     "request": "^2.88.2",
     "source-map-loader": "^3.0.0",
     "ts-loader": "^9.2.5",
