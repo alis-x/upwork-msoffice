@@ -3,12 +3,10 @@
 const protocPlugin = require('protoc-plugin')
 const findCommentByPath = protocPlugin.findCommentByPath
 
-protocPlugin(protos => {
-  return [{
-    name: `functions.js`,
-    content: protos.map(generateFunctions).join(`\r\n`)
-  }]
-})
+protocPlugin(protos =>  [{
+  content: protos.flatMap(generateFunctions).join(`\r\n`),
+  name: `functions.js`, }]
+)
 .catch((err) => {
   console.error(err)
 })
@@ -26,16 +24,12 @@ function generateFunctions(proto) {
     `const {${services}} = require('../client/${name}_grpc_web_pb.js');`,
     ``,
     `let target = 'https://services-gateway-v1-rruykyywdq-ew.a.run.app';`,
-    proto.serviceList.map((service, s) => generateService(proto, service, s, name)).join(`\r\n`),
-  ].join(`\r\n`)
-}
-
-function generateService(proto, service, s, name) {
-  return [
-    ``,
-    `var ${name}Service = new ${service.name}Client(target);`,
-     service.methodList.map((method, m) => generateFunction(proto, service, s, method, m, name)).join(`\r\n`)
-  ].join(`\r\n`)
+    proto.serviceList.flatMap((service, s) => [
+      ``,
+      `var ${name}Service = new ${service.name}Client(target);`,
+      service.methodList.flatMap((method, m) => generateFunction(proto, service, s, method, m, name))
+    ].flat())
+  ].flat()
 }
 
 function generateFunction(proto, service, s, method, m, name) {
@@ -51,14 +45,14 @@ function generateFunction(proto, service, s, method, m, name) {
     `/**`,
     ` * ${findCommentByPath([6, s, 2, m], proto.sourceCodeInfo.locationList)}`,
     ` * @customfunction ${jsMethodName} ${jsMethodName}`,
-    request.fieldList.map((field, f) => ` * @param ${field.jsonName} ${findCommentByPath([4, req, 2, f], proto.sourceCodeInfo.locationList)}`).join(`\r\n`),
+    request.fieldList.flatMap((field, f) => ` * @param ${field.jsonName} ${findCommentByPath([4, req, 2, f], proto.sourceCodeInfo.locationList)}`),
     ` * @returns ${findCommentByPath([4, rsp, 2, 0], proto.sourceCodeInfo.locationList)}`,
     ` */`,
     `function ${service.name}_${method.name}(${arguments}) {`,
     `  return new Promise(function (resolve, reject) {`,
     ``,
     `    var request = new ${request.name}();`,
-    request.fieldList.map(field => `    request.set${toUpperCaseFirst(field.jsonName)}(${field.jsonName});`).join(`\r\n`),
+    request.fieldList.flatMap(field => `    request.set${toUpperCaseFirst(field.jsonName)}(${field.jsonName});`),
     ``,
     `    ${name}Service.${jsMethodName}(request, {},`,
     `      function(err, response) {`,
@@ -66,7 +60,7 @@ function generateFunction(proto, service, s, method, m, name) {
     `    });`,
     `  });`,
     `}`
-  ].join(`\r\n`)
+  ].flat()
 }
 
 function toLowerCaseFirst(text) {
