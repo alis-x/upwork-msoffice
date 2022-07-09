@@ -22,7 +22,11 @@ function GreeterService_SayHello(name) {
 
     greeterService.sayHello(request, {},
       function(err, response) {
-        resolve(response.getMessage());
+        if (err) {
+          reject(err.message);
+        } else {
+          resolve(response.getMessage());
+        }
+      });
     });
-  });
 }

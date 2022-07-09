@@ -56,7 +56,11 @@ function generateFunction(proto, service, s, method, m, name) {
     ``,
     `    ${name}Service.${jsMethodName}(request, {},`,
     `      function(err, response) {`,
-    `        resolve(response.get${toUpperCaseFirst(response.fieldList[0].jsonName)}());`,
+    `        if (err) {`,
+    `          reject(err.message);`,
+    `        } else {`,
+    `          resolve(response.get${toUpperCaseFirst(response.fieldList[0].jsonName)}());`,
+    `        }`,
     `    });`,
     `  });`,
     `}`
